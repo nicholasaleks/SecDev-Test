@@ -4,7 +4,7 @@
 1. Operating System - "Windows 10", would probably work on 7/8 but that wasn't tested.
 1. Hardware - Sound device capable of input 
 1. Software Installed - "Python 3.6", MME API (Native to Windows, doesn't require install)
-1. Needed Packages - "PyAudio", included in 2 files, or you can run "python -m pip install pyaudio"
+1. Needed Packages - "PyAudio", included in 2 files (pyaudio.py, _portaudio.cp36-win32.pyd), or you can run "python -m pip install pyaudio"
 
 ## Post-Conditions
 1. ADPCM output file exists and it's size indicates audio was captured for required amount of seconds
