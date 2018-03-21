@@ -12,4 +12,4 @@
 ## Additional comments
 1. recorder.py is the exploit script to run on the target machine
 1. You can avoid installing the "PyAudio" package and just place pyaudio.py, _portaudio.cp36-win32.pyd and recorder.py in the same folder, then run recorder.py
-1. If you want to hear for yourself that the exploit does in fact captures audio, you can run it on a physical machine with a physical, non-emulated microphone. After running recorder.py, place manualTester.py in the same folder and run it, you will get a wav file you can listen to.
+1. If you want to hear for yourself that the exploit does in fact capture audio, you can run it on a physical machine with a physical, non-emulated microphone. After running recorder.py, place manualTester.py in the same folder and run it, you will get a wav file you can listen to.
