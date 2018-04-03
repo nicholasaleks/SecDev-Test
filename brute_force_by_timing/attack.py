@@ -87,9 +87,6 @@ class TimingAttack:
                 sorted_times = times.as_dict_sorted_by_times()
                 secret = secret + sorted_times[-1][0][-1]
                 print('-------------------')
-
-                # try the secret without guessing the next char
-                self.timeit(secret, iterations=1)
         except SecretFoundException as e:
             print("The credentials are ", self.username, ':', e)
             return str(e)
