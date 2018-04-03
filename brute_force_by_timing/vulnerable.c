@@ -81,8 +81,8 @@ uchar strcmp_slow(const int len, const uchar *const a, const uchar *const b)
     if (x)
       return 0xFF;
   }
-  /* failure: non-terminal nul in either string */
-  if ((a[i] | b[i]) != 0x00)
+  /* failure: terminal NUL missing in either string */
+  if ((a[len] | b[len]) != 0x00)
     return 0xFF;
 
   /* success */
