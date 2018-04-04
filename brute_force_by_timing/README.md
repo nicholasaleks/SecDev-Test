@@ -23,14 +23,14 @@ Windows.
 
 ## Instructions
 
-0. Operating System and Network
+### 0. Operating System and Network
 
 Any operating system that will run docker-compose and docker should be
 sufficient. Debian GNU/Linux stretch (presently stable) is recommended.
 
 The system will require access to the Internet at least until the attack is complete.
 
-1. Required State Setup
+### 1. Required State Setup
 
 On Debian stretch, you may complete this step by cloning the repo unto the host
 system and running `./1_debian_setup.sh`.
@@ -52,7 +52,7 @@ the `docker` group and then login to again. Alternatively you can run as root.
 Docker variants are available for [macOS](https://www.docker.com/docker-mac) and
 [Windows](https://www.docker.com/docker-windows).
 
-2. Prepare the attack
+### 2. Prepare the attack
 
 On Debian stretch, macOS and other Unix-likes, you can complete this step by
 running `./2_prepare.sh`.
@@ -69,7 +69,7 @@ Finally run `docker compose run attack make -B` to compile the vulnerable
 program. It is safe to ignore the pedantic warnings.
 
 
-3. Run
+### 3. Run
 
 On Debian stretch, macOS and other Unix-likes, you can complete this step by
 running `./3_attack.sh`.
@@ -86,7 +86,7 @@ that the script does not find the secret, simply run the script again.
 The script is sucessful if and only if it prints a message to stdout of the
 form: `The credentials are user : pass`.
 
-4. Cleanup
+### 4. Cleanup
 
 On Debian stretch, you can complete this step by running `./4_debian_cleanup.sh`.
 
