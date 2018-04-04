@@ -28,7 +28,8 @@ Windows.
 Any operating system that will run docker-compose and docker should be
 sufficient. Debian GNU/Linux stretch (presently stable) is recommended.
 
-The system will require access to the Internet at least until the attack is complete.
+The system will require access to the Internet at least until the instructons
+under secton "2. Prepare the Attack" are complete.
 
 ### 1. Required State Setup
 
