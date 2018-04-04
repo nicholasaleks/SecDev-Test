@@ -37,35 +37,36 @@ system and running `./1_debian_setup.sh`.
 
 OR you may complete the scripts' actions manually:
 
-Git and Docker must be installed on the host system. They is freely
-available in Debian, however the docker.io package is needs to be
-installed from the unstable archive.
+Git and Docker must be installed on the host system. They are freely available
+in Debian, however the docker.io package needs to be installed from the
+unstable archive.
 
 The Debian package names and required versions are as follows:
 - docker.io >= 1.13.1
 - docker-compose >= 1.8.0
 - git >= 2.11
 
-Under the Debian unstable docker.io package, it's necessary to add your user to the `docker` group and
-then login to again. Alternatively you can run as root.
+Under the Debian unstable docker.io package, it's necessary to add your user to
+the `docker` group and then login to again. Alternatively you can run as root.
 
 Docker variants are available for [macOS](https://www.docker.com/docker-mac) and
 [Windows](https://www.docker.com/docker-windows).
 
 2. Prepare the attack
 
-On Debian stretch, macOS and other Unix-likes, you can complete this step by running `./2_prepare.sh`.
+On Debian stretch, macOS and other Unix-likes, you can complete this step by
+running `./2_prepare.sh`.
 
 OR you may complete the scripts' actions manually:
 
-First you'll want to walk the directory tree of the git repository to the location of this readme
+First you'll want to walk the directory tree of the git repository to the
+location of this readme
 file.
 
 Next run `docker-compose build` to build the Docker image.
 
-Finally run `docker compose run attack make -B` to compile
-the vulnerable program. It is safe to ignore the pedantic
-warnings.
+Finally run `docker compose run attack make -B` to compile the vulnerable
+program. It is safe to ignore the pedantic warnings.
 
 
 3. Run
@@ -94,5 +95,3 @@ OR you may complete the scripts' actions manually:
 - You may now uninstall Docker. If running Debian, it can be removed using APT:
 
 - You may also delete the directory in which you cloned this repository.
-
-
