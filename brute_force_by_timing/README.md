@@ -94,7 +94,8 @@ On Debian stretch, you can complete this step by running `./4_debian_cleanup.sh`
 
 OR you may complete the scripts' actions manually:
 
-- You may now uninstall Docker. If running Debian, it can be removed using APT:
+- You may now uninstall Docker. If running Debian, it can be removed using APT
+  as shown in the script.
 
 - You may also delete the directory in which you cloned this repository.
 
