@@ -39,12 +39,14 @@ OR you may complete the scripts' actions manually:
 
 Git and Docker must be installed on the host system. They are freely available
 in Debian, however the docker.io package needs to be installed from the
-unstable archive.
+unstable archive. Installation and use of git is out of scope because this is
+a git repository.
 
 The Debian package names and required versions are as follows:
 - docker.io >= 1.13.1
 - docker-compose >= 1.8.0
-- git >= 2.11
+- git >= 2.11 (`./4_debian_cleanup` needs roughly git >= 1.8, but only >= 2.11
+  has been tested)
 
 Under the Debian unstable docker.io package, it's necessary to add your user to
 the `docker` group and then login to again. Alternatively you can run as root.
@@ -95,3 +97,5 @@ OR you may complete the scripts' actions manually:
 - You may now uninstall Docker. If running Debian, it can be removed using APT:
 
 - You may also delete the directory in which you cloned this repository.
+
+As git is out of scope, the script does not uninstall it.
