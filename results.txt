@@ -1,0 +1,7 @@
+echo password
+grep password bash_history_files/*
+echo password
+history  | grep password
+pwd
+pwd
+grep pwd bash_history_files/*

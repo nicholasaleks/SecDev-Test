@@ -1,0 +1,9 @@
+{
+  "CONFIG": {
+    "EXPLOIT_HOME":	"/Users/fahadk/GithubProjects/SecDev-Test/",
+    "EXPLOIT_TAGS":	"password|pwd|login|secure|credentials",
+    "LOG_FILENAME": 	"exploit.log",
+    "OUTPUT_FILENAME":	"results.txt"
+  }
+
+}
