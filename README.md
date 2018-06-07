@@ -1,3 +1,37 @@
+BASH HISTORY EXPLOIT
+--------------------------------------------------------------------
+1) Set config file parameters in config.json:
+
+Sample settings
+{
+  "CONFIG": {
+    "EXPLOIT_HOME":     "/Users/fahadk/GithubProjects/SecDev-Test/",
+    "EXPLOIT_TAGS":     "password|pwd|login|secure|credentials",
+    "LOG_FILENAME":     "exploit.log",
+    "OUTPUT_FILENAME":  "results.txt"
+  }
+
+}
+
+2) To run:
+
+set +o history
+python exploit.py [--config-file <filename>] [--log-level <DEBUG", "INFO", "WARN", "ERROR>]
+set -o history
+
+By default, log level is set to DEBUG
+            config file is set to config.json
+
+
+Before running this script, we disable users history itself so no one else can track this user. ANd enable it after the exploit is complete.
+This exploit tries to get the /Users/<username>/.bash_history file from all users and saves it locally for Exfiltration in bash_history_files folder.
+After copying all files, it looks for usernames, passwords and other credential information, which users may have typed as command line parameters to their applications. It does this by searching for the tags defined in the config file in all files. More tags can be added to detect other keywords. The found tags are stored in OUTPUT_FILENAME.
+We assume that this user running this exploit has read access to all the bash history files. Typically we would run this as root user.
+
+
+
+
+
 # The SecDev Challenge
 Applicants for the SecDev Engineer career must complete the following challenge, and submit a solution prior to the interviewing process. This will help the interviewers assess your strengths, and frame the conversation through the interview process. Take as much time as you need, however we ask that you not spend more than a few hours. 
 
@@ -34,10 +68,5 @@ Evaluation of your submission will be based on the following criteria.
 2. Did you document the method for setting up and running your exploit?
 3. Did you follow the instructions for submission?
 4. Does your exploit work
-
-
-BASH HISTORY EXPLOIT by Fahad Khan
-
-To run:
 
 
