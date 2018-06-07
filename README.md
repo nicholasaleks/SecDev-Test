@@ -40,8 +40,9 @@ This exploit tries to get the /Users/<username>/.bash_history file from all user
 I am particularly proud of the part that after copying all files, it looks for usernames, passwords and other credential information, which users may have typed as command line parameters to their applications. It does this by searching for the tags defined in the config file in all files. Not just credential tags, other kind of tags can be added in the config file to detect other keywords. The found tags are stored in OUTPUT_FILENAME.
 This script is easily configurable to run in any MacOS environment. It may actually work in Linux environemtn as well (although not tested). THe logs are informational enough to tell us what wnet wrong or what steps where successful in the exploit.
 
-
 We assume that this user running this exploit has read access to all the bash history files. Typically we would run this as root user.
+
+
 -----------------------------------------------------------------------------------------------
 
 
