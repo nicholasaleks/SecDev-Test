@@ -29,6 +29,7 @@ Sample settings
 	set -o history
 
 By default, log level is set to DEBUG
+
 config file is set to config.json
 
 
