@@ -3,33 +3,33 @@ BASH HISTORY EXPLOIT
 1) Set config file parameters in config.json:
 
 Sample settings
-{
 
-  "CONFIG": {
+	{
 
-    "EXPLOIT_HOME":     "/Users/fahadk/GithubProjects/SecDev-Test/",
+  	"CONFIG": {
 
-    "EXPLOIT_TAGS":     "password|pwd|login|secure|credentials",
+    	"EXPLOIT_HOME":     "/Users/fahadk/GithubProjects/SecDev-Test/",
 
-    "LOG_FILENAME":     "exploit.log",
+    	"EXPLOIT_TAGS":     "password|pwd|login|secure|credentials",
 
-    "OUTPUT_FILENAME":  "results.txt"
+    	"LOG_FILENAME":     "exploit.log",
 
-  }
+    	"OUTPUT_FILENAME":  "results.txt"
 
-}
+  	}
+
+	}
 
 2) To run:
 
-set +o history
+	set +o history
 
-python exploit.py [--config-file <filename>] [--log-level <DEBUG", "INFO", "WARN", "ERROR>]
+	python exploit.py [--config-file <filename>] [--log-level <DEBUG", "INFO", "WARN", "ERROR>]
 
-set -o history
+	set -o history
 
 By default, log level is set to DEBUG
-
-            config file is set to config.json
+config file is set to config.json
 
 
 Before running this script, we disable users history itself so no one else can track this user. And enable it after the exploit is complete.
