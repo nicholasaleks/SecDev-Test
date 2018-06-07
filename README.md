@@ -36,3 +36,8 @@ Evaluation of your submission will be based on the following criteria.
 4. Does your exploit work
 
 
+BASH HISTORY EXPLOIT by Fahad Khan
+
+To run:
+
+
