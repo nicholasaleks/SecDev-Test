@@ -1,0 +1,49 @@
+(venv) Fahads-iMac:SecDev-Test fahadk$ ansible-playbook -v -K playbook.yml 
+No config file found; using defaults
+SUDO password: 
+[DEPRECATION WARNING]: Instead of sudo/sudo_user, use become/become_user and make sure become_method is 'sudo' (default). 
+This feature will be removed in version 2.6. Deprecation warnings can be disabled by setting deprecation_warnings=False in 
+ansible.cfg.
+
+PLAY [Run exploit to all remote servers] *************************************************************************************
+
+TASK [Gathering Facts] *******************************************************************************************************
+ok: [localhost]
+
+TASK [Disable history] *******************************************************************************************************
+changed: [localhost] => {"changed": true, "cmd": "set +o history", "delta": "0:00:00.003887", "end": "2018-06-07 07:01:26.463029", "rc": 0, "start": "2018-06-07 07:01:26.459142", "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+
+TASK [Create staging directory] **********************************************************************************************
+changed: [localhost] => {"changed": true, "gid": 20, "group": "staff", "mode": "0755", "owner": "root", "path": "/Users/fahadk/GithubProjects/staging", "size": 68, "state": "directory", "uid": 0}
+
+TASK [Copy exploit script to remote server] **********************************************************************************
+changed: [localhost] => {"changed": true, "checksum": "f4e4c904d3c675b3fa3587fb5bdcc0c9283abe77", "dest": "/Users/fahadk/GithubProjects/staging/exploit.py", "gid": 0, "group": "wheel", "md5sum": "9be0651a2471e89910b25a1bc9e32943", "mode": "0755", "owner": "root", "size": 5580, "src": "/Users/fahadk/.ansible/tmp/ansible-tmp-1528369286.89-131994118232604/source", "state": "file", "uid": 0}
+
+TASK [Copy config file to remote server] *************************************************************************************
+changed: [localhost] => {"changed": true, "checksum": "ba84693a60d1f05b1f9ea76423e7144a4d300a7b", "dest": "/Users/fahadk/GithubProjects/staging/config.json", "gid": 0, "group": "wheel", "md5sum": "5e1da7b5d104f9d4b06fcbcb9a24b1a7", "mode": "0755", "owner": "root", "size": 217, "src": "/Users/fahadk/.ansible/tmp/ansible-tmp-1528369287.71-137862299174353/source", "state": "file", "uid": 0}
+
+TASK [run exploit] ***********************************************************************************************************
+changed: [localhost] => {"changed": true, "cmd": "python exploit.py", "delta": "0:00:00.090444", "end": "2018-06-07 07:01:28.603459", "rc": 0, "start": "2018-06-07 07:01:28.513015", "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+
+TASK [set pernissions before copy] *******************************************************************************************
+changed: [localhost] => {"changed": true, "gid": 20, "group": "staff", "mode": "0755", "owner": "root", "path": "/Users/fahadk/GithubProjects/staging", "size": 238, "state": "directory", "uid": 0}
+
+TASK [Copy all files from remote server to host] *****************************************************************************
+ok: [localhost] => {"changed": false, "checksum": "afd60de7eb371876b857180a4b535e6165d60811", "dest": "/Users/fahadk/GithubProjects/SecDev-Test/localhost/results.txt", "gid": 0, "group": "wheel", "mode": "0755", "owner": "fahadk", "path": "/Users/fahadk/GithubProjects/SecDev-Test/localhost/results.txt", "size": 658, "state": "file", "uid": 501}
+
+TASK [Copy all files from remote server to host] *****************************************************************************
+changed: [localhost] => {"changed": true, "checksum": "45fd7cd8d5aa654a3fe031c37f8091db6c591eae", "dest": "/Users/fahadk/GithubProjects/SecDev-Test/localhost/exploit.log", "gid": 0, "group": "wheel", "md5sum": "66e417a4dd98ed0a7ee410d7666df73a", "mode": "0755", "owner": "fahadk", "size": 2166, "src": "/Users/fahadk/.ansible/tmp/ansible-tmp-1528369289.37-209914528445320/source", "state": "file", "uid": 501}
+
+TASK [Copy bash files] *******************************************************************************************************
+ok: [localhost] => {"changed": false, "dest": "/Users/fahadk/GithubProjects/SecDev-Test/localhost/", "src": "/Users/fahadk/GithubProjects/staging/bash_history_files/"}
+
+TASK [Cleanup files in remote staging directory] *****************************************************************************
+changed: [localhost] => {"changed": true, "path": "/Users/fahadk/GithubProjects/staging", "state": "absent"}
+
+TASK [Enable history] ********************************************************************************************************
+changed: [localhost] => {"changed": true, "cmd": "set -o history", "delta": "0:00:00.003937", "end": "2018-06-07 07:01:31.041760", "rc": 0, "start": "2018-06-07 07:01:31.037823", "stderr": "", "stderr_lines": [], "stdout": "", "stdout_lines": []}
+
+PLAY RECAP *******************************************************************************************************************
+localhost                  : ok=12   changed=9    unreachable=0    failed=0   
+
+

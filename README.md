@@ -20,7 +20,7 @@ Sample settings
 
 	}
 
-2) To run:
+2) To run locally:
 
 	set +o history
 
@@ -32,6 +32,22 @@ By default, log level is set to DEBUG
 
 config file is set to config.json
 
+3) Ansible:
+
+set the hosts in /etc/ansible/hosts file
+
+Edit the playbook.yml file  and set the variables
+
+
+
+To run as local user (set sudo setting in yml file to no):
+
+	ansible-playbook playbook.ym > ansible.log
+
+To run with root on remote machines:
+
+	ansible-playbook -K playbook.yml > ansible.log
+
 
 Before running this script, we disable users history itself so no one else can track this user. And enable it after the exploit is complete.
 
@@ -39,6 +55,9 @@ This exploit tries to get the /Users/<username>/.bash_history file from all user
 
 I am particularly proud of the part that after copying all files, it looks for usernames, passwords and other credential information, which users may have typed as command line parameters to their applications. It does this by searching for the tags defined in the config file in all files. Not just credential tags, other kind of tags can be added in the config file to detect other keywords. The found tags are stored in OUTPUT_FILENAME.
 This script is easily configurable to run in any MacOS environment. It may actually work in Linux environemtn as well (although not tested). THe logs are informational enough to tell us what wnet wrong or what steps where successful in the exploit.
+
+I'm also able to use Ansible so this script can be run on multiple remote servers and results can obtained under hostname folder. 
+
 
 We assume that this user running this exploit has read access to all the bash history files. Typically we would run this as root user.
 
