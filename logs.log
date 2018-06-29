@@ -1,0 +1,29 @@
+06-29 17:54 __main__     INFO     Started execution on Linux
+06-29 17:54 __main__     INFO     Keywords: user,pass,host,pwd,key,credetials,login,secret,url
+06-29 17:54 __main__     INFO     Case sensitive: False
+06-29 17:54 __main__     INFO     Send files: False
+06-29 17:54 __main__     INFO     Retriving files matching pattern: *-example.yaml
+06-29 17:54 __main__     INFO     Running process with command: find / -type f -name "*-example.yaml"
+06-29 17:54 __main__     DEBUG    /home/ubuntu/ansible-test-playbooks/regular-example.yaml
+/home/ubuntu/ansible-test-playbooks/remote/regular-example.yaml
+/home/ubuntu/ansible-test-playbooks/remote/valuable-example.yaml
+/home/ubuntu/ansible-test-playbooks/valuable-example.yaml
+
+06-29 17:54 __main__     INFO     Inspecting file: /home/ubuntu/ansible-test-playbooks/regular-example.yaml
+06-29 17:54 __main__     INFO     Inspecting file: /home/ubuntu/ansible-test-playbooks/remote/regular-example.yaml
+06-29 17:54 __main__     INFO     Inspecting file: /home/ubuntu/ansible-test-playbooks/remote/valuable-example.yaml
+06-29 17:54 __main__     CRITICAL Matching keyword found! 'secret' in '  name: mysecret
+'
+06-29 17:54 __main__     CRITICAL Matching keyword found! 'user' in '  username: YWRtaW4=
+'
+06-29 17:54 __main__     CRITICAL Matching keyword found! 'pass' in '  password: MWYyZDFlMmU2N2Rm
+'
+06-29 17:54 __main__     INFO     Inspecting file: /home/ubuntu/ansible-test-playbooks/valuable-example.yaml
+06-29 17:54 __main__     CRITICAL Matching keyword found! 'secret' in '  name: mysecret
+'
+06-29 17:54 __main__     CRITICAL Matching keyword found! 'user' in '  username: YWRtaW4=
+'
+06-29 17:54 __main__     CRITICAL Matching keyword found! 'pass' in '  password: MWYyZDFlMmU2N2Rm
+'
+06-29 17:54 __main__     INFO     Attack result: Success
+~

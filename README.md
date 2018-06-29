@@ -1,3 +1,42 @@
+## Challenge solution by Naor N.
+## Exploit Name: Credentials in Files (https://attack.mitre.org/wiki/Technique/T1081)
+
+# Summary
+This exploit is looking for credentials / sensitive data on machine.
+It detects hosting OS type and executed proper command if supported, otherwise does not executes logic.
+It looks for files that are matching the pattern and looks for sensitive data inside according to predefined keywords,
+If sensitive data is found, then this data is being captures and later on transmitted to C2 server.
+Additional functionallity is to send the whole file with the match to C2 server if this features is toggled on (obfuscated/compressed).
+The Exploit is working with any user according his to permissions, therefore is better to executed as root/administrator
+
+# Exploit Usage
+
+1. Execution preconditions: OS = "Windows" or "Linux", machine is connected to Internet
+							If OS == "Linux" - bash history should be turnned on before execution with "set +o history"
+2. Attack action: Read summary. 
+	Usage: python main.py [--log-level <"DEBUG", "INFO", "WARN", "ERROR", "CRITICAL">] [--pattern <file_search_pattern] [--keywords <comma_seperated_keywords>] [--case-sensitive <True/False>] [--send-files <True/False>] [--obfuscate <True/False>] [--compress <True/False>] [--send-logs <True/False>]
+	
+	Default parameters values:
+		--log-level = DEBUG
+		--pattern = "*.yaml"
+		--keywords = ['user', 'pass', 'host', 'pwd', 'key', 'credetials', 'login', 'secret', 'url']
+		--send-files = False (send matching pattern files with matching keywords to c2 server)
+		--send-log = False (send log to c2 server)
+		--case-sensitive = False
+		--obfuscate = True
+		--compress = False
+
+3. Attack postconditions: attack considered as successful if there is at least one match
+4. Exploit is removing log file and transmit the data to c2 server obfuscated to avoid monitoring/automatic rules that capture sensitive data leakage
+
+I'm particularly proud of the dynamically of the exploit, it can be executed on several os (and other os can be added easily), 
+it has lot of configurated exposed to the executing user and it should be safe and 'quiet', 
+it means that no information is printed to the screen, exceptions are captured and data is transmitted obfuscated to c2.
+can be orchestration ansible playbook
+
+-----------------------------------
+
+
 # The SecDev Challenge
 Applicants for the SecDev Engineer career must complete the following challenge, and submit a solution prior to the interviewing process. This will help the interviewers assess your strengths, and frame the conversation through the interview process. Take as much time as you need, however we ask that you not spend more than a few hours. 
 

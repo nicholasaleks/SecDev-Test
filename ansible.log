@@ -1,0 +1,21 @@
+2018-06-29 17:54:30,166 p=32440 u=ubuntu |   [WARNING]: provided hosts list is empty, only localhost is available
+
+2018-06-29 17:54:30,239 p=32440 u=ubuntu |  PLAY [run the playbook tasks on the localhost] *********************************
+2018-06-29 17:54:30,254 p=32440 u=ubuntu |  TASK [setup] *******************************************************************
+2018-06-29 17:54:30,938 p=32440 u=ubuntu |  ok: [127.0.0.1]
+2018-06-29 17:54:30,945 p=32440 u=ubuntu |  TASK [Create staging directory] ************************************************
+2018-06-29 17:54:31,159 p=32440 u=ubuntu |  changed: [127.0.0.1]
+2018-06-29 17:54:31,166 p=32440 u=ubuntu |  TASK [Copy exploit script to remote server] ************************************
+2018-06-29 17:54:31,522 p=32440 u=ubuntu |  changed: [127.0.0.1]
+2018-06-29 17:54:31,529 p=32440 u=ubuntu |  TASK [Copy vaulable-exmpale.yaml file to remote server] ************************
+2018-06-29 17:54:31,754 p=32440 u=ubuntu |  changed: [127.0.0.1]
+2018-06-29 17:54:31,761 p=32440 u=ubuntu |  TASK [Copy regular-exmpale.yaml (not valuable) file to remote server] **********
+2018-06-29 17:54:31,984 p=32440 u=ubuntu |  changed: [127.0.0.1]
+2018-06-29 17:54:31,991 p=32440 u=ubuntu |  TASK [Execute the exploit with custom pattern matching example provided] *******
+2018-06-29 17:54:35,219 p=32440 u=ubuntu |  changed: [127.0.0.1]
+2018-06-29 17:54:35,226 p=32440 u=ubuntu |  TASK [Copy logfile back to master] *********************************************
+2018-06-29 17:54:35,460 p=32440 u=ubuntu |  changed: [127.0.0.1]
+2018-06-29 17:54:35,467 p=32440 u=ubuntu |  TASK [Cleanup] *****************************************************************
+2018-06-29 17:54:35,599 p=32440 u=ubuntu |  changed: [127.0.0.1]
+2018-06-29 17:54:35,606 p=32440 u=ubuntu |  PLAY RECAP *********************************************************************
+2018-06-29 17:54:35,606 p=32440 u=ubuntu |  127.0.0.1                  : ok=8    changed=7    unreachable=0    failed=0

@@ -1,0 +1,48 @@
+---
+
+- name: Run the playbook tasks on the localhost
+  hosts: 127.0.0.1
+  connection: local
+  become: yes
+  vars:
+    LOCAL_DIR: .
+    REMOTE_DIR: ./remote/
+
+  tasks:
+   - name: Create staging directory
+     file: path='{{ REMOTE_DIR }}' state=directory
+
+   - name: Copy exploit script to remote server
+     copy:
+      src: "{{ LOCAL_DIR }}/main.py"
+      dest: '{{ REMOTE_DIR }}'
+      mode: 0755
+
+   - name: Copy vaulable-exmpale.yaml file to remote server
+     copy:
+      src:  "{{LOCAL_DIR}}/valuable-example.yaml"
+      dest: '{{ REMOTE_DIR }}'
+      mode: 0755
+
+   - name: Copy regular-exmpale.yaml (not valuable) file to remote server
+     copy:
+      src:  "{{ LOCAL_DIR }}/regular-example.yaml"
+      dest: '{{ REMOTE_DIR }}'
+      mode: 0755
+
+   - name: Execute the exploit with custom pattern matching example provided
+     shell: |
+       python main.py --pattern="*-example.yaml"
+     args:
+       chdir: '{{ REMOTE_DIR }}'
+
+   - name: Copy log file back to master
+     copy:
+      dest: "{{LOCAL_DIR}}/"
+      src: "{{REMOTE_DIR}}/logs.log"
+      mode: 0755
+
+   - name: Cleanup
+     file:
+       state: absent
+       path: '{{ REMOTE_DIR }}'
