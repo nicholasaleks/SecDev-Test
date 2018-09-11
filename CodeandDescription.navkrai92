@@ -1,0 +1,68 @@
+# Command to install python-nmap is 
+
+pip install python-nmap
+
+import socket
+import sys
+import nmap
+from MitreAttack import Attack
+from MitreAttack import Techniques
+from Mitreattack import Tools
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+host = socket.gethostbyname()
+print("Enter host: ")
+
+np = np.PortScanner()
+np.scan( host, '1-1024')
+
+scanresults = np.scan
+
+print(sort("scanresults"))
+
+Operatingsystem = {'Windows':'office 2007'}
+
+atck = Attack()
+
+def atck.findTechnique('Network Service Scanning'): # Technique to be used for exploit
+    print("Techniques related to Network Scanning are : ")
+
+
+def atck.findGroup('APT34'): # Tool to be used for network scanning
+    print("Tool used for network scanning is : ")
+
+def atck.findGroup('FIN6'): #Gathering info against servers
+    print("Tool for Mapping Internal Network and gathering information is: ")
+
+def atck.findusercredientials('Mimikatz'): #for SAM file extraction
+    print("Technique to be used next for user credientials: ")
+
+def atck.findpasswords('APT3'): #for password extraction
+    print(" Method to extract passwords from the hashes of SAM file: ")
+
+Attack.Operatingsystem()
+
+atck.allTechniques['T1122'] #for hijacking
+
+Attack.Operatingsystem()
+
+if Attack.Operatingsystem == True:
+    print("Need immediate assistance")
+else:
+    print("System is patched properly")
+
+#For mITIGATION purposes use the following commands
+
+setApplocker(1) #To enable applocker for restricting unintended execution of commands on windows
+
+
+
+#############Description 
+####In this Test, the technique I preferred for exploiting the system is Network Service Scanning. With this technique adversary is able to obtain a list of servicers running on the system and is able to figure out services which can be exploited easily. In the network scanning before attacking the system I used a nmap scan on the remote system and find out the open ports and after that to be very sure again run the another tool which is also publically available and is a custom tool “Goldirony” for scanning the network.
+After that adversary used the FIN6 which has inbuilt tools to map the network and gather information against Active Directory and other servers. To get the access of SAM file the tool used is “Mimikatz” and after that attack function is called to attack the system and T1122 is used to Hijack the system for a period of time.  
+To mitigate these attacks Applocker on windows should be enabled which will restrict all the unintended services on a system.
+
+
+
+
+
