@@ -1,0 +1,60 @@
+# Command to install python-nmap is 
+
+pip install python-nmap
+
+import socket
+import sys
+import nmap
+from MitreAttack import Attack
+from MitreAttack import Techniques
+from Mitreattack import Tools
+
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+host = socket.gethostbyname()
+print("Enter host: ")
+
+np = np.PortScanner()
+np.scan( host, '1-1024')
+
+scanresults = np.scan
+
+print(sort("scanresults"))
+
+Operatingsystem = {'Windows':'office 2007'}
+
+atck = Attack()
+
+def atck.findTechnique('Network Service Scanning'): # Technique to be used for exploit
+    print("Techniques related to Network Scanning are : ")
+
+
+def atck.findGroup('APT34'): # Tool to be used for network scanning
+    print("Tool used for network scanning is : ")
+
+def atck.findGroup('FIN6'): #Gathering info against servers
+    print("Tool for Mapping Internal Network and gathering information is: ")
+
+def atck.findusercredientials('Mimikatz'): #for SAM file extraction
+    print("Technique to be used next for user credientials: ")
+
+def atck.findpasswords('APT3'): #for password extraction
+    print(" Method to extract passwords from the hashes of SAM file: ")
+
+Attack.Operatingsystem()
+
+atck.allTechniques['T1122'] #for hijacking
+
+Attack.Operatingsystem()
+
+if Attack.Operatingsystem == True:
+    print("Need immediate assistance")
+else:
+    print("System is patched properly")
+
+#For mITIGATION purposes use the following commands
+
+setApplocker(1) #To enable applocker for restricting unintended execution of commands on windows
+
+
+
+
