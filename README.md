@@ -1,12 +1,29 @@
+## Implementation of Attack technique T1139 - Bash History
+## Challenge submitted by Yutong Wang
+
+- [x] Precondition: OS = ['Linux', 'MacOS']
+- [x] Attack Execution: Please run `python script.py --shells [csv of valid shells] --keywords [csv of words to match] --cleanup ['yes'/'no'] --filepath [string of valid file path]`
+
+For example:
+`python script.py --filepath '.sample_history'` (to invoke the sample_history file in the repo)
+`python script.py --keywords 'server,name'`
+
+Default values:
+`--shells`: 'bash,zsh'
+`--keywords`: 'username,password,secret,rsa,key,host'
+
+- [x] Postcondition: The script should generate a logfile containing mined credentials and their associated keywords
+- [x] Please set `--cleanup` flag to `yes` to remove the logfile after program execution
+
 # The SecDev Challenge
-Applicants for the SecDev Engineer career must complete the following challenge, and submit a solution prior to the interviewing process. This will help the interviewers assess your strengths, and frame the conversation through the interview process. Take as much time as you need, however we ask that you not spend more than a few hours. 
+Applicants for the SecDev Engineer career must complete the following challenge, and submit a solution prior to the interviewing process. This will help the interviewers assess your strengths, and frame the conversation through the interview process. Take as much time as you need, however we ask that you not spend more than a few hours.
 
 We prefer that you use Python; however, this is not a hard requirement. Please contact us if you'd like to use something else.
 
 ## Submission Instructions
 1. Fork this project on github. You will need to create an account if you don't already have one
 1. Complete the project as described below within your fork
-1. Push all of your changes to your fork on github and submit a pull request. 
+1. Push all of your changes to your fork on github and submit a pull request.
 1. You should also email your recruiter to let them know you have submitted a solution. Make sure to include your github username in your email (so we can match applicants with pull requests).
 
 ## Project Description
@@ -28,7 +45,7 @@ Using orchestration software (Salt, Ansible, Puppet, Chef, and/or deployment scr
 Once you're done, please submit a paragraph or two in your `README` about what you are particularly proud of in your implementation, and why.
 
 ## Evaluation
-Evaluation of your submission will be based on the following criteria. 
+Evaluation of your submission will be based on the following criteria.
 
 1. Did your exploit fulfill the basic requirements?
 2. Did you document the method for setting up and running your exploit?
