@@ -1,16 +1,18 @@
 ## Implementation of Attack technique T1139 - Bash History
-## Challenge submitted by Yutong Wang
 
 - [x] Precondition: OS = ['Linux', 'MacOS']
-- [x] Attack Execution: Please run `python script.py --shells [csv of valid shells] --keywords [csv of words to match] --cleanup ['yes'/'no'] --filepath [string of valid file path]`
+- [x] Attack Execution: 
+```
+python script.py --shells [csv of valid shells] --keywords [csv of words to match] --cleanup ['yes'/'no'] --filepath [string of valid file path]
+```
 
 For example:
-`python script.py --filepath '.sample_history'` (to invoke the sample_history file in the repo)
-`python script.py --keywords 'server,name'`
+- `python script.py --filepath '.sample_history'` (to invoke the sample_history file in the repo)
+- `python script.py --keywords 'server,name'`
 
 Default values:
-`--shells`: 'bash,zsh'
-`--keywords`: 'username,password,secret,rsa,key,host'
+- `--shells`: 'bash,zsh'
+- `--keywords`: 'username,password,secret,rsa,key,host'
 
 - [x] Postcondition: The script should generate a logfile containing mined credentials and their associated keywords
 - [x] Please set `--cleanup` flag to `yes` to remove the logfile after program execution
