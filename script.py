@@ -3,10 +3,6 @@ import re
 import logging
 import argparse
 
-# email modules
-import smtplib
-from email.mime.text import MIMEText
-
 # default configurations
 DEFAULT_SHELLS = ['bash', 'zsh']
 DEFAULT_KEYWORDS = ['username', 'password',
@@ -68,9 +64,9 @@ class CredentialReader(object):
             # iterate through all files
             for file in self.__files:
                 for line in file:
-                    obj = regex.match(line)
-                    if obj:
+                    if regex.match(line):
                         try:
+                            obj = regex.match(line)
                             # if a match is captured, store in dictionary
                             credentials[kw] = str(obj.group(kw)) if not credentials.get(kw) else '{0},{1}'.format(
                                 credentials[kw], obj.group(kw))

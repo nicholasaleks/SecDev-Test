@@ -1,6 +1,0 @@
-WARNING:logs:5 potential credentials discovered
-WARNING:logs:CREDENTIAL type username: 'bob',harry
-WARNING:logs:CREDENTIAL type secret: EB/asddfuewenmsd3Td
-WARNING:logs:CREDENTIAL type password: c1#45728ttG
-WARNING:logs:CREDENTIAL type host: my-bost.asdjemf.us-west-2.rds.amazonaws.com
-WARNING:logs:CREDENTIAL type key: dfjeirdsfE129387sdfasiua
