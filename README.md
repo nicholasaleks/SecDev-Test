@@ -1,38 +1,40 @@
-# The SecDev Challenge
-Applicants for the SecDev Engineer career must complete the following challenge, and submit a solution prior to the interviewing process. This will help the interviewers assess your strengths, and frame the conversation through the interview process. Take as much time as you need, however we ask that you not spend more than a few hours. 
+This is a small security project that I put together in my spare time, and is inspired by the BEEF browser exploitation framework and XSStrike 
+Comprises two parts: 
+1) A script to automatically generate a Reflective XSS payload
+2) The payload itself which starts reverse shell using a WebSocket client in the injected JS context that communicates back to our listening server. Arbitrary commands can then be sent thru the reverse shell to be executed inside the injected JS context. 
 
-We prefer that you use Python; however, this is not a hard requirement. Please contact us if you'd like to use something else.
+Usage Steps:
+1. Install Python3 (Tested with 3.6.6 but will probably work for other versions)
+2. Run "npm install"
+3. Run "python3 xss.py website" to scan for possible Reflective XSS on website
+4. If the Step 3 is successful, copy the output (it should contain an URL with payload embedded inside a GET parameter) open it in a browser window
+5. Start listening server with "node server.js"
+6. $$$
 
-## Submission Instructions
-1. Fork this project on github. You will need to create an account if you don't already have one
-1. Complete the project as described below within your fork
-1. Push all of your changes to your fork on github and submit a pull request. 
-1. You should also email your recruiter to let them know you have submitted a solution. Make sure to include your github username in your email (so we can match applicants with pull requests).
+To test WebSocket shell:
+1. alert(0)
+2. And all BEEF payloads (currently only dom.js) can be accessed using dom Object:
+ie. dom.removeStylesheets()
 
-## Project Description
-Leverage the [MITRE ATT&CK framework](https://attack.mitre.org/wiki/Main_Page) and pick 1 attack technique. MITRE's Adversarial Tactics, Techniques and Common Knowledge (ATT&CK) is a curated knowledge base and model for cyber adversary behavior, reflecting the various phases of an adversary's lifecycle and the platforms they are known to target.
+Future Features:
+1. Filter Evasion
+2. More JS modules for the WebSocket client
+3. Better commandline interface for the shell (ala Metasploit shell autocomplete, search commands, list modules)
 
-We request that you write a Python exploit that will automate the attack technique you picked. (You may decide to write the exploit in powershell/bash)
-1. Your exploit should clearly define attack preconditions (For Example: [Operating System = "Windows", Software Installed = "Office 2007"])
-2. Your exploit should clearly define attack action (Execution of the attack)
-3. Your exploit should clearly define postconditions (This will act as a validation check if your exploit was either successfully/failed)
-4. Your exploit should finally contain a comprehensive clean-up method which will remove any files, directories and reset configurations changed/added by the attack action
+Summary of Exploit:
+precondition: xss.py will only look for vectors XSS resulting input values that have the same "name" as the name of a corresponding GET url. This is a pretty big assumption to make, since any input GET parameter that does not have the same name as an input element will be missed. No filter evasion was implemented so any client/serverside filtering will render the generated payload useless. The final XSS payload is also blocked by XSS filters on modern IE and Chrome browsers, but works fine in FireFox. 
+The payload will work in most situations, since WebSockets connections are not blocked under the CORS policy(however, since I am using the socket.io implementation, on older browsers that do not support WebSockets, socket.io will default to using XMLHttpRequests, which will be blocked by CORS). Strict CSP rules are the only instance that I've come across in which the attempt to connect back to the listening server is blocked, but this only applies to ~5% of webpages that I've tested on.
 
-Your exploit should be easy to set up, and should run on either Linux or Mac OS X. It should not require any non open-source software. The exploit will be tested in a virtual machine lab based on the clearly defined preconditions.
+attack: xss.py only supports Relfective XSS where the GET parameters contained in the URL reflect potential sites for JS payload to be injected. The way it searches for parameters is it searches the DOM for input elements, and ASSUMES that the "name" attribute of the input element is the same as the GET parameter expected by the server. It then reloads the page by filling each GET parameter it found with a test string, and then looks for the test string within the reloaded DOM to determine the context that they landed in (single quotes, double quotes, between tags[not yet implemented], etc.). Finally, it will generate a URL with the payload as the value of one of the GET parameters.
+Once uploaded, the payload will continuously try to make a connection back to the listening server. Once the connection is established, the attacker can enter commands in listener shell, which will geforwarded to the remote WebSocket client. All commands are put into eval() and executed within the current JS context.
 
-There are many ways that this exploit could be built; we ask that you build it in a way that showcases one of your strengths. If you you enjoy documentation, do something interesting with defining the preconditions. If you like object-oriented design, feel free to dive deeper into the model of this problem. We're happy to tweak the requirements slightly if it helps you show off one of your strengths.
+postcondition: if the generated payload was successful, then a connection will established with the listening server
 
-## Bonus Points
-Using orchestration software (Salt, Ansible, Puppet, Chef, and/or deployment scripts) to provision attack target machine state (meeting attack preconditions)
+cleanup: currently cleanup of the payload is supported
 
-Once you're done, please submit a paragraph or two in your `README` about what you are particularly proud of in your implementation, and why.
+NOTE: I missed the line where it said cannot use OSS. If that is the case then you can just evaluate xss.py, because that is coded in vanilla Python3
 
-## Evaluation
-Evaluation of your submission will be based on the following criteria. 
-
-1. Did your exploit fulfill the basic requirements?
-2. Did you document the method for setting up and running your exploit?
-3. Did you follow the instructions for submission?
-4. Does your exploit work
+I am particularly proud of the way I coded xss.py. Although it's probably not the "pythonic way", I think I made good use of python's language features (filter, map, v3 format strings) to make my codeconcise and (hopefully) easy to understand. Comments are also tastefully added to enhance comprehension. Honestly, I think this is probably the best piece of python code I've ever written.
+Originally I was just going to do the initial XSS exploit but was glad I also added the WebSocket payload. With the addition of the BEEF modules, the WebSocket payload becomes really flexible and powerful, such as stealing browser cookies, logging keystrokes, messing with the DOM (tested this on my friends), and even lateral movements through WebRTC(not tested but I do remember reading an article about compromising WebRTC-enabled IoT devices). All in all, I had alot of fun coding this, and found it to be an invaluable learning opportunity. 
 
 

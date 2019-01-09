@@ -1,0 +1,26 @@
+{
+  "name": "chicken",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dom_test.js",
+  "dependencies": {
+    "express": "^4.16.4"
+  },
+  "devDependencies": {
+    "socket.io": "^2.2.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JohnPeng47/CHICKEN.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JohnPeng47/CHICKEN/issues"
+  },
+  "homepage": "https://github.com/JohnPeng47/CHICKEN#readme"
+}
