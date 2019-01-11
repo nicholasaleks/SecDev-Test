@@ -4,12 +4,11 @@ This script was developed to demonstrate [Automated Collection](https://attack.m
 This exploit assumes that PRE-ATT&CK methods have been used to gain root access to the target machine.
 The exploit written is very flexible and is able to take any path in the system to explore. Errors encountered while parsing files will be ignored as the exploit continues to look for more files.
 Files collected have the hash of the current time appended to the filename to avoid name collisions when copying files. This ensures that files with the same name in multiple locations do not overwrite each other. 
-<br/>
+
 Two strategies are implemented in order find target files:
    1. Matching a file's extension to a list of target extensions
    2. Match the filename against a list of regex patterns
 
-<br/>
 As both these lists are provided through command line arguments, there are no hardcoded patterns and the attacker is free to re-use the script for any extensions or regex patterns they wish.
 I am most proud of this exploit's portability and flexibility. The exploit is highly configurable for multiple use cases and requires no dependencies other than Python, which most systems already have installed.
 <br/><br/>
