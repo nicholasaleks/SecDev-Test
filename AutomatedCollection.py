@@ -4,6 +4,7 @@ import logging
 import hashlib
 import re
 import subprocess
+import tarfile
 from datetime import datetime
 from shutil import copyfile, rmtree
 
@@ -26,7 +27,8 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 
-def execute_automated_collection(target_dir='/', clean_up = False):
+
+def execute_automated_collection(target_dir='/', archive = True, upload = True, archive_name = 'collection.tar.gz', clean_up = True):
     """
     Traverses all files and folders from path, looking for files with an extension that matches one in EXTENSIONS.
     Read and execute permissions for directories will be temporarily granted to the user to continue traversal.
@@ -39,6 +41,12 @@ def execute_automated_collection(target_dir='/', clean_up = False):
 
     create_and_validate_dir(COLLECTION_LOCATION)
     search_filesystem(target_dir)
+
+    if archive:
+        archive_files(COLLECTION_LOCATION, os.path.join(COLLECTION_LOCATION, archive_name))
+
+    if upload:
+        print("uploading")
 
     if clean_up:
         clean_collection_location()
@@ -113,15 +121,21 @@ def modify_permissions(f, perm):
     os.chmod(f, perm)
 
 
-def upload_collections():
-    pass
+def archive_files(src, dest):
+    with tarfile.open(dest, "w:gz") as tar:
+        tar.add(src, arcname=os.path.basename(src))
 
+
+def upload_collections(src, dest):
+    pass
 
 def clean_collection_location():
     rmtree(COLLECTION_LOCATION)
 
+
 if __name__ == '__main__':
     TARGET_EXTENSIONS.append('.txt')
+    TARGET_EXTENSIONS.append('.blah')
     TARGET_REGEX_PATTERNS.append(re.compile("test.*"))
-    COLLECTION_LOCATION = '/Users/vince/Desktop/output'
+    COLLECTION_LOCATION = '/Users/vince/Desktop/collection'
     execute_automated_collection("/Users/vince/Desktop/test")
