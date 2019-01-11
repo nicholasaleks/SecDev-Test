@@ -2,18 +2,22 @@
 
 This script was developed to demonstrate [Automated Collection](https://attack.mitre.org/techniques/T1119/), one of the many techniques listed on Mitre ATT&CK.
 This exploit assumes that PRE-ATT&CK methods have been used to gain root access to the target machine.
-The exploit I wrote is very flexible and is able to take any path in the system to explore. Errors encountered while parsing files will be ignored as the exploit continues to look for more files.
+The exploit written is very flexible and is able to take any path in the system to explore. Errors encountered while parsing files will be ignored as the exploit continues to look for more files.
 Files collected have the hash of the current time appended to the filename to avoid name collisions when copying files. This ensures that files with the same name in multiple locations do not overwrite each other. 
+<br/>
 Two strategies are implemented in order find target files:
-    1. Matching a file's extension to a list of target extensions
-    2. Match the filename against a list of regex patterns
-As both these lists are arguments provided with command line arguments, there are no hardcoded patterns and the attacker is free to re-use the script for any extensions or regex patterns they wish.
-I am most proud of this exploit's portability and flexibility. It requires no dependencies other than Python, which most systems already have installed, and is highly configurable for multiple use cases.
+   1. Matching a file's extension to a list of target extensions
+   2. Match the filename against a list of regex patterns
 
+<br/>
+As both these lists are provided through command line arguments, there are no hardcoded patterns and the attacker is free to re-use the script for any extensions or regex patterns they wish.
+I am most proud of this exploit's portability and flexibility. The exploit is highly configurable for multiple use cases and requires no dependencies other than Python, which most systems already have installed.
+<br/><br/>
 I have also implemented some additional features such as archiving and uploading. Though the script
 currently only supports uploading to a running Docker container from a host machine, it can easily be adapted to support other ATT&CK exfiltration techniques. 
 Additionally, support for the encryption of collected files can be added to the existing archiving functionality.
 Lastly, the exploit attempts to hide itself by pausing and resuming bash history, restoring modified file permissions, and optionally, removing copies of the collected files.
+<br/>
 Note: The clean_dest argument in the sample is set to False. The copied files are persisted for demonstration purposes
 
 One idea I would have liked to implement is to connect a container to an existing Docker network to attack other containers. However, this idea lies outside the scope this test.
