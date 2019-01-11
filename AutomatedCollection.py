@@ -1,3 +1,4 @@
+import argparse
 import os
 import stat
 import logging
@@ -28,7 +29,7 @@ logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 
 
-def execute_automated_collection(target_dir='/', archive = True, upload = True, archive_name = 'collection.tar.gz', clean_up = True):
+def execute_automated_collection(target_dir, archive, archive_name, upload, container, clean_up):
     """
     Traverses all files and folders from path, looking for files with an extension that matches one in EXTENSIONS.
     Read and execute permissions for directories will be temporarily granted to the user to continue traversal.
@@ -126,16 +127,30 @@ def archive_files(src, dest):
         tar.add(src, arcname=os.path.basename(src))
 
 
-def upload_collections(src, dest):
-    pass
+def upload_collections(container, src, dest):
+    docker_upload_command = 'docker cp %s %s:%s'.format(container, src, dest)
+    run_bash_command(docker_upload_command)
+
 
 def clean_collection_location():
     rmtree(COLLECTION_LOCATION)
 
 
 if __name__ == '__main__':
-    TARGET_EXTENSIONS.append('.txt')
-    TARGET_EXTENSIONS.append('.blah')
-    TARGET_REGEX_PATTERNS.append(re.compile("test.*"))
-    COLLECTION_LOCATION = '/Users/vince/Desktop/collection'
-    execute_automated_collection("/Users/vince/Desktop/test")
+    parser = argparse.ArgumentParser(description='Automated Collection.')
+    parser.add_argument('--target_dir', type=str, default='/', help='An absolute path to the directory to begin traversing in')
+    parser.add_argument('--target_extensions', nargs='*', help='A list of one or more extensions of files to collect')
+    parser.add_argument('--target_regex', nargs='*', help='A list of one or more regex patterns. Files matching any of these patterns will be collected')
+    parser.add_argument('--archive', type=bool, default=True, help='Creates a tar ball after all the files have been collected')
+    parser.add_argument('--archive_name', type=str, default='collection.tar.gz', help='The name of the archive if created')
+    parser.add_argument('--upload', type=bool, default=False, help='Uploads collection to a docker container. A container name must be provided with the --container_name argument')
+    parser.add_argument('--container_name', type=str, help='The name of the docker container to upload files to')
+    parser.add_argument('--clean_up', type=bool, default=False, help='Removes all files saved to the collection')
+    args = parser.parse_args()
+    TARGET_EXTENSIONS = args.target_extensions
+    TARGET_REGEX_PATTERNS = args.target_regex
+    if TARGET_EXTENSIONS is None and TARGET_REGEX_PATTERNS is None:
+        print("At least one extension or regex pattern must be provided")
+    else:
+        COLLECTION_LOCATION = '/Users/vince/Desktop/collection'
+        execute_automated_collection(args.target_dir, args.archive, args.archive_name, args.upload, args.container_name, args.clean_up)
