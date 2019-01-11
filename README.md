@@ -1,7 +1,53 @@
-# Automated Collection
+# Automated Collection 
+
+This script was developed to demonstrate [Automated Collection](https://attack.mitre.org/techniques/T1119/), one of the many techniques listed on Mitre ATT&CK.
+The exploit I wrote is very flexible and is able to take any path in the system to explore. 
+Two strategies are implmented in order find target files:
+    1. Matching a file's extension to a list of target extensions
+    2. Match the filename against a list of regex patterns.
+As both these lists are arguments provided from the command line, there are no hardcoded patterns and the attacker is free to re-use the script for any extension or naming pattern.
+
+I have also implemented some additional features such as archiving and uploading. Though the script
+currently only supports uploading to a running Docker container from a host machine, it can easily be adapted to support other ATT&CK exfiltration techniques. 
+Additionally, support for the encryption of collected files can be easily added to the existing archiving functionality.
+Lastly, the exploit attempts to hide itself by pausing and resuming bash history, restoring modified file permissions, and optionally, removing the copies of the collected files.
+  
 
 Sample Execution:
-`python AutomatedCollection.py --src / --dest /collect --target_extensions .txt .old --target_regex secret* --archive true --archive_name collect.tar.gz --upload False --clean_dest False`
+`python AutomatedCollection.py --src / --dest /collect --target_extensions .secret .old --target_regex secret* --archive true --archive_name collect.tar.gz --upload False --clean_dest False`
+
+## Instructions
+If Docker is installed, follow steps 1 to 4 and use the Dockerfile to build and provision a container to attack. 
+If Docker is not installed, skip to step 5 to run the exploit locally.
+1. cd into this project's directory in terminal
+2. Run `docker build -t VinceAutomatedCollectionExploit .` to build the image
+3. Run `docker run -itd --name VinceACExploit VinceAutomatedCollectionExploit` to run the container
+4. The exploit script is already located in the root of the directory in the container
+5. Execute the exploit using the sample above as an example (There are files hidden around the container's file system matching the patterns in the sample)
+6. Collected files will be located in the directory speciied by the --dest argument 
+
+## Pre-conditions
+   [Operating System = "Linux/MacOS", Installed Software = "Python 3, Docker (optional)"]
+   
+## Post-conditions
+If clean_dest is False, there should be a folder with a copy of all the matched files in dest. If clean_dest is True,
+there will be no persisted changes to the existing filesystem.
+
+## Arguments
+  --src str            An absolute path to the directory to begin traversing in<br/>
+  --dest str           An absolute path to the directory files will be collected in<br/>
+  --target_extensions list A list of one or more extensions of files to collect<br/>
+  --target_regex list A list of one or more regex patterns. Files matching any of these patterns will be collected<br/>
+  --archive bool     Creates a tar ball after all the files have been collected<br/>
+  --archive_name str The name of the archive if created<br/>
+  --upload bool       Uploads collection to a docker container. A container name must be provided with the --container_name argument<br/>
+  --container_name str The name of the docker container to upload files to. Files will be uploaded to the root directory of the container.<br/>
+  --clean_dest bool Removes all files saved to the collection<br/>
+
+
+## Limitations
+- Will trigger a user-prompt for access on MacOS in some files
+- set -o
 
 ---
 

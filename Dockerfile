@@ -11,7 +11,7 @@ RUN touch /var/lib/secrets/clients.secret
 RUN chmod 000 /var/lib/secrets/clients.secret
 RUN chmod 000 /var/lib/secrets
 
+ADD sample_execution.sh /
 ADD AutomatedCollection.py /
 
-RUN python AutomatedCollection.py --src / --dest /collect --target_extensions .secret .old --target_regex secret* --archive true --archive_name collect.tar.gz --upload False --clean_dest False
 ENTRYPOINT ["tail", "-f", "/dev/null"]
