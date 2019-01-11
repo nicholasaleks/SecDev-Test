@@ -1,11 +1,16 @@
 import os
 import stat
 import logging
+import hashlib
+import re
+from datetime import datetime
 from shutil import copyfile
 
-EXTENSIONS = []
+TARGET_EXTENSIONS = []
+TARGET_REGEX_PATTERNS = []
 MATCH_IGNORE_CASE = False
 COLLECTION_LOCATION = ''
+MD5 = hashlib.md5()
 
 OWNER_READ_PERMISSIONS = stat.S_IRUSR
 OWNER_READ_EXECUTE_PERMISSIONS = stat.S_IRUSR | stat.S_IXUSR
@@ -27,14 +32,10 @@ def execute_automated_collection(path='/'):
     :param path: An absolute path in the filesystem (optional)
     :return:
     """
-    # Traverse file system and look for files that match extension
-    # Look out for:
-    #       - File permissions (both to search and copy)
-    #       - case sensitivity
-    #       - complex nested fs
-    #       - performance of search
-    # Copy matching files to some location
+    # TODO: Pause bash history
+    create_and_validate_dir(COLLECTION_LOCATION)
     search_filesystem(path)
+    # TODO: Resume bash history
 
 def search_filesystem(path):
     for root, dirs, files in os.walk(path):
@@ -51,12 +52,11 @@ def search_filesystem(path):
 
                 modify_permissions(d, OWNER_READ_EXECUTE_PERMISSIONS)
                 search_filesystem(d)
-                # Restore original permissions
                 modify_permissions(d, original_permissions)
 
         for file in files:
             f = os.path.join(root, file)
-            if file_matches_target_extension(f):
+            if file_matches_target_extension(file) or file_matches_target_regex_patterns(file):
                 logger.info("Target file found: %s", f)
                 original_permissions = get_permissions(f)
                 if original_permissions < OWNER_READ_PERMISSIONS:
@@ -64,22 +64,30 @@ def search_filesystem(path):
                         "File does not have owner read permissions. Permissions will be temporarily modified. "
                         "File: %s, current permissions: %d", d, original_permissions)
                     modify_permissions(f, OWNER_READ_PERMISSIONS)
-                copyfile(f, os.path.join(COLLECTION_LOCATION, file))
+                MD5.update(str(datetime.now()).encode("utf-8"))
+                name, ext = os.path.splitext(file)
+                unique_filename = ''.join([name, '-', MD5.hexdigest(), ext])
+
+                copyfile(f, os.path.join(COLLECTION_LOCATION, unique_filename))
 
 
 def file_matches_target_extension(f):
     ext = os.path.splitext(f)[1]
-    return ext.lower() in EXTENSIONS if MATCH_IGNORE_CASE else ext in EXTENSIONS
+    return ext.lower() in TARGET_EXTENSIONS if MATCH_IGNORE_CASE else ext in TARGET_EXTENSIONS
+
+
+def file_matches_target_regex_patterns(f):
+    return True in [p.match(f) != None for p in TARGET_REGEX_PATTERNS]
 
 
 def collect_file(src, dest):
     copyfile(src, dest)
 
 
-def create_and_validate_collection_dir():
-    if not os.path.exists(COLLECTION_LOCATION):
-        os.makedirs(COLLECTION_LOCATION)
-        modify_permissions(COLLECTION_LOCATION, OWNER_READ_EXECUTE_PERMISSIONS)
+def create_and_validate_dir(d):
+    if not os.path.exists(d):
+        os.makedirs(d)
+        modify_permissions(d, OWNER_READ_EXECUTE_PERMISSIONS)
 
 
 def get_permissions(f):
@@ -90,7 +98,16 @@ def modify_permissions(f, perm):
     os.chmod(f, perm)
 
 
+def upload_collections():
+    pass
+
+
+def clean_up():
+    pass
+
+
 if __name__ == '__main__':
-    EXTENSIONS.append('.txt')
+    TARGET_EXTENSIONS.append('.txt')
+    TARGET_REGEX_PATTERNS.append(re.compile("test.*"))
     COLLECTION_LOCATION = '/Users/vince/Desktop/output'
     execute_automated_collection("/Users/vince/Desktop/test")
