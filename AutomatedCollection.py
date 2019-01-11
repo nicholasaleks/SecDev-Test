@@ -34,6 +34,10 @@ def execute_automated_collection(src, dest, archive, archive_name, upload, conta
      TARGET_REGEX_PATTERNS or with an extension listed in TARGET_EXTENSIONS. Files are copied into the dest directory.
      If archive is True, a tarball will be created with the name archive_name in the dest directory. If clean_dest is
      True, all collected documents will be deleted at the end of the script.
+
+     If upload is True a container name must be provided. The script will upload the tarball or the files
+     (if tarball not generated) to the container
+
     :param src: Path to directory to traverse
     :param dest: Path of directory to save files in
     :param archive: If True, dest will be tarballed
@@ -41,7 +45,6 @@ def execute_automated_collection(src, dest, archive, archive_name, upload, conta
     :param upload: If True, files will be uploaded to docker container. Only the tarball will be uploaded if archived.
     :param container: The name of the container to copy files to
     :param clean_dest: If True, deletes all collected files at the end of the script
-    :return:
     """
     pause_bash_history_command = "set +o history"
     run_bash_command(pause_bash_history_command)
@@ -49,11 +52,18 @@ def execute_automated_collection(src, dest, archive, archive_name, upload, conta
     create_and_validate_permissions(dest)
     search_filesystem(src, dest)
 
+    tar_file = ''
     if archive:
-        archive_files(dest, os.path.join(dest, archive_name))
+        tar_file = os.path.join(dest, archive_name)
+        archive_files(dest, tar_file)
 
     if upload:
-        print("uploading")
+        if tar_file != '':
+            logger.info("Uploading tarball to docker container")
+            upload_collections(container, tar_file)
+        else:
+            logger.info("Uploading files to docker container")
+            upload_collections(container, dest)
 
     if clean_dest:
         clean_files(dest)
@@ -63,83 +73,139 @@ def execute_automated_collection(src, dest, archive, archive_name, upload, conta
 
 
 def run_bash_command(command):
-    process = subprocess.Popen(command.split(), shell=True, stdout=subprocess.DEVNULL)
+    """
+    Executes a bash command using subprocess
+    :param command:
+    :return:
+    """
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.DEVNULL)
     process.communicate()
 
 
 def search_filesystem(src, dest):
+    """
+    Walks through the src directory copying files to dest. Uses TARGET_EXTENSIONS and TARGET_REGEX_PATTERNS to match
+    files. Permissions are temporarily modified to ensure files can be copied. Restoration of permissions leaves
+    system as close as possible to initial state
+    :param src: The directory to traverse
+    :param dest: The directory to copy files to
+    """
     for root, dirs, files in os.walk(src):
-
         for dir in dirs:
-            d = os.path.join(root, dir)
-            original_permissions = get_permissions(d)
-            if original_permissions < OWNER_READ_EXECUTE_PERMISSIONS:
-                logger.info(
-                    "File does not have owner read execute permissions. Permissions will be temporarily modified."
-                    " File: %s, current permissions: %d",
-                    d,
-                    original_permissions)
-
-                modify_permissions(d, OWNER_READ_EXECUTE_PERMISSIONS)
-                search_filesystem(d)
-                modify_permissions(d, original_permissions)
-
-        for file in files:
-            f = os.path.join(root, file)
-            if file_matches_target_extension(file) or file_matches_target_regex_patterns(file):
-                logger.info("Target file found: %s", f)
-                original_permissions = get_permissions(f)
-                if original_permissions < OWNER_READ_PERMISSIONS:
+            try:
+                d = os.path.join(root, dir)
+                original_permissions = get_permissions(d)
+                if original_permissions < OWNER_READ_EXECUTE_PERMISSIONS:
                     logger.info(
-                        "File does not have owner read permissions. Permissions will be temporarily modified. "
-                        "File: %s, current permissions: %d", d, original_permissions)
-                    modify_permissions(f, OWNER_READ_PERMISSIONS)
-                MD5.update(str(datetime.now()).encode("utf-8"))
-                name, ext = os.path.splitext(file)
-                unique_filename = ''.join([name, '-', MD5.hexdigest(), ext])
+                        "File does not have owner read execute permissions. Permissions will be temporarily modified."
+                        " File: %s, current permissions: %d",
+                        d,
+                        original_permissions)
 
-                copyfile(f, os.path.join(dest, unique_filename))
+                    modify_permissions(d, OWNER_READ_EXECUTE_PERMISSIONS)
+                    search_filesystem(d)
+                    modify_permissions(d, original_permissions)
+            except Exception as e:
+                logger.error(e)
+                continue
+        for file in files:
+            try:
+                f = os.path.join(root, file)
+                if file_matches_target_extension(file) or file_matches_target_regex_patterns(file):
+                    logger.info("Target file found: %s", f)
+                    original_permissions = get_permissions(f)
+                    if original_permissions < OWNER_READ_PERMISSIONS:
+                        logger.info(
+                            "File does not have owner read permissions. Permissions will be temporarily modified. "
+                            "File: %s, current permissions: %d", d, original_permissions)
+                        modify_permissions(f, OWNER_READ_PERMISSIONS)
+                    MD5.update(str(datetime.now()).encode("utf-8"))
+                    name, ext = os.path.splitext(file)
+                    unique_filename = ''.join([name, '-', MD5.hexdigest(), ext])
+                    logger.info("Copying file %s to %s", f, os.path.join(dest, unique_filename))
+                    copyfile(f, os.path.join(dest, unique_filename))
+            except Exception as e:
+                logger.error(e)
+                continue
 
 
 def file_matches_target_extension(f):
+    """
+    Checks if an extension is in the TARGET_EXTENSIONS list. If MATCH_IGNORE_CASE is True, the match
+    will be case insensitive.
+    :param f: A file name with extension (i.e. 'myfile.txt')
+    :return: True if the file's extension is in TARGET_EXTENSIONS, False otherwise
+    """
     ext = os.path.splitext(f)[1]
     return ext.lower() in TARGET_EXTENSIONS if MATCH_IGNORE_CASE else ext in TARGET_EXTENSIONS
 
 
 def file_matches_target_regex_patterns(f):
+    """
+    Checks to see if a file name matches a regex pattern listed in TARGET_REGEX_PATTERNS
+    :param f: A file name
+    :return: True if at least one pattern in the list is matched, False otherwise
+    """
     return True in [p.match(f) is not None for p in TARGET_REGEX_PATTERNS]
 
 
-def collect_file(src, dest):
-    copyfile(src, dest)
-
-
 def create_and_validate_permissions(d):
+    """
+    Creates a directory if it doesn't exist and provides RWX permissions to the owner
+    :param d: A path to a directory
+    """
     if not os.path.exists(d):
         os.makedirs(d)
     modify_permissions(d, OWNER_RWX_PERMISSIONS)
 
 
 def get_permissions(f):
+    """
+    Returns the 3-digit integer representation of a file's permissions
+    :param f: A path to a file or directory
+    :return: 3-digit integer
+    """
     return int(oct(os.stat(f)[stat.ST_MODE])[-3:])
 
 
 def modify_permissions(f, perm):
+    """
+    Modifies a file's permissions to perm
+    :param f: A path to a file or directory
+    :param perm: The 3-digit representation of a file's permissions
+    """
     os.chmod(f, perm)
 
 
 def archive_files(src, dest):
+    """
+    Archives the file by packing it into a tarball
+    :param src: Path to directory to compress
+    :param dest: Path of file to output
+    """
     with tarfile.open(dest, "w:gz") as tar:
         tar.add(src, arcname=os.path.basename(src))
 
 
-def upload_collections(container, src, dest):
-    docker_upload_command = 'docker cp %s %s:%s'.format(container, src, dest)
+def upload_collections(container, src):
+    logger.info('docker cp {} {}:{}'.format(src, container, '/'))
+    docker_upload_command = 'docker cp {} {}:{}'.format(src, container, '/')
     run_bash_command(docker_upload_command)
 
 
 def clean_files(dest):
+    """
+    Removes all files recursively in dest
+    :param dest: Path to directory or files to remove
+    """
     rmtree(dest)
+
+
+def parse_bool_arg(arg):
+    if arg.lower() in ('yes', 'y', 'true', 't', '1'):
+        return True
+    elif arg.lower() in ('no', 'n', 'false', 'f', '0'):
+        return False
 
 
 if __name__ == '__main__':
@@ -147,22 +213,28 @@ if __name__ == '__main__':
     parser.add_argument('--src', type=str, default='/', help='An absolute path to the directory to begin traversing in')
     parser.add_argument('--dest', type=str, default='/collect', help='An absolute path to the directory files will '
                                                                      'be collected in')
-    parser.add_argument('--target_extensions', nargs='*', help='A list of one or more extensions of files to collect')
-    parser.add_argument('--target_regex', nargs='*', help='A list of one or more regex patterns. Files matching any of '
-                                                          'these patterns will be collected')
-    parser.add_argument('--archive', type=bool, default=True, help='Creates a tar ball after all the files have been '
-                                                                   'collected')
+    parser.add_argument('--target_extensions', default=[], nargs='*',
+                        help='A list of one or more extensions of files to collect')
+    parser.add_argument('--target_regex', default=[], nargs='*',
+                        help='A list of one or more regex patterns. Files matching any of '
+                             'these patterns will be collected')
+    parser.add_argument('--archive', type=parse_bool_arg, default=True,
+                        help='Creates a tar ball after all the files have been '
+                             'collected')
     parser.add_argument('--archive_name', type=str, default='collection.tar.gz', help='The name of the archive if '
                                                                                       'created')
-    parser.add_argument('--upload', type=bool, default=False, help='Uploads collection to a docker container. '
-                                                                   'A container name must be provided with '
-                                                                   'the --container_name argument')
+    parser.add_argument('--upload', type=parse_bool_arg, default=False,
+                        help='Uploads collection to a docker container. '
+                             'A container name must be provided with '
+                             'the --container_name argument')
     parser.add_argument('--container_name', type=str, help='The name of the docker container to upload files to')
-    parser.add_argument('--clean_up', type=bool, default=False, help='Removes all files saved to the collection')
+    parser.add_argument('--clean_dest', type=parse_bool_arg, default=False,
+                        help='Removes all files saved to the collection')
     args = parser.parse_args()
     TARGET_EXTENSIONS = args.target_extensions
     TARGET_REGEX_PATTERNS = [re.compile(p) for p in args.target_regex]
-    if TARGET_EXTENSIONS is None and TARGET_REGEX_PATTERNS is None:
+    if len(TARGET_EXTENSIONS) == len(TARGET_REGEX_PATTERNS) == 0:
         print("At least one extension or regex pattern must be provided")
     else:
-        execute_automated_collection(args.src, args.dest, args.archive, args.archive_name, args.upload, args.container_name, args.clean_up)
+        execute_automated_collection(args.src, args.dest, args.archive, args.archive_name, args.upload,
+                                     args.container_name, args.clean_dest)

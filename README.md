@@ -1,5 +1,7 @@
 # Automated Collection
 
+Sample Execution:
+`python AutomatedCollection.py --src / --dest /collect --target_extensions .txt .old --target_regex secret* --archive true --archive_name collect.tar.gz --upload False --clean_dest False`
 
 ---
 
