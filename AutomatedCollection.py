@@ -3,8 +3,9 @@ import stat
 import logging
 import hashlib
 import re
+import subprocess
 from datetime import datetime
-from shutil import copyfile
+from shutil import copyfile, rmtree
 
 TARGET_EXTENSIONS = []
 TARGET_REGEX_PATTERNS = []
@@ -12,6 +13,7 @@ MATCH_IGNORE_CASE = False
 COLLECTION_LOCATION = ''
 MD5 = hashlib.md5()
 
+OWNER_RWX_PERMISSIONS = stat.S_IRWXU
 OWNER_READ_PERMISSIONS = stat.S_IRUSR
 OWNER_READ_EXECUTE_PERMISSIONS = stat.S_IRUSR | stat.S_IXUSR
 OWNER_WRITE_EXECUTE_PERMISSIONS = stat.S_IWUSR | stat.S_IXUSR
@@ -24,7 +26,7 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 
-def execute_automated_collection(path='/'):
+def execute_automated_collection(target_dir='/', clean_up = False):
     """
     Traverses all files and folders from path, looking for files with an extension that matches one in EXTENSIONS.
     Read and execute permissions for directories will be temporarily granted to the user to continue traversal.
@@ -32,10 +34,23 @@ def execute_automated_collection(path='/'):
     :param path: An absolute path in the filesystem (optional)
     :return:
     """
-    # TODO: Pause bash history
+    pause_bash_history_command = "set +o history"
+    run_bash_command(pause_bash_history_command)
+
     create_and_validate_dir(COLLECTION_LOCATION)
-    search_filesystem(path)
-    # TODO: Resume bash history
+    search_filesystem(target_dir)
+
+    if clean_up:
+        clean_collection_location()
+
+    resume_bash_history_command = "set -o history"
+    run_bash_command(resume_bash_history_command)
+
+
+def run_bash_command(command):
+    process = subprocess.Popen(command.split(), shell=True, stdout=subprocess.DEVNULL)
+    output, error = process.communicate()
+
 
 def search_filesystem(path):
     for root, dirs, files in os.walk(path):
@@ -77,7 +92,7 @@ def file_matches_target_extension(f):
 
 
 def file_matches_target_regex_patterns(f):
-    return True in [p.match(f) != None for p in TARGET_REGEX_PATTERNS]
+    return True in [p.match(f) is not None for p in TARGET_REGEX_PATTERNS]
 
 
 def collect_file(src, dest):
@@ -87,7 +102,7 @@ def collect_file(src, dest):
 def create_and_validate_dir(d):
     if not os.path.exists(d):
         os.makedirs(d)
-        modify_permissions(d, OWNER_READ_EXECUTE_PERMISSIONS)
+    modify_permissions(d, OWNER_RWX_PERMISSIONS)
 
 
 def get_permissions(f):
@@ -102,9 +117,8 @@ def upload_collections():
     pass
 
 
-def clean_up():
-    pass
-
+def clean_collection_location():
+    rmtree(COLLECTION_LOCATION)
 
 if __name__ == '__main__':
     TARGET_EXTENSIONS.append('.txt')
