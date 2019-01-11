@@ -4,6 +4,7 @@ import logging
 from shutil import copyfile
 
 EXTENSIONS = []
+MATCH_IGNORE_CASE = False
 COLLECTION_LOCATION = ''
 
 OWNER_READ_PERMISSIONS = stat.S_IRUSR
@@ -33,16 +34,42 @@ def execute_automated_collection(path='/'):
     #       - complex nested fs
     #       - performance of search
     # Copy matching files to some location
+    search_filesystem(path)
+
+def search_filesystem(path):
     for root, dirs, files in os.walk(path):
+        # Check for directories that can't be accessed
         for dir in dirs:
             d = os.path.join(root, dir)
+            original_permissions = get_permissions(d)
+            if original_permissions < OWNER_READ_EXECUTE_PERMISSIONS:
+                logger.info(
+                    "File does not have owner read execute permissions. Permissions will be temporarily modified."
+                    " File: %s, current permissions: %d",
+                    d,
+                    original_permissions)
+
+                modify_permissions(d, OWNER_READ_EXECUTE_PERMISSIONS)
+                search_filesystem(d)
+                # Restore original permissions
+                modify_permissions(d, original_permissions)
+
         for file in files:
             f = os.path.join(root, file)
-            ext = os.path.splitext(file)[1]
-            if ext in EXTENSIONS:
-                if get_permissions(f) < OWNER_READ_PERMISSIONS:
-                    modify_file_permissions(f, OWNER_READ_PERMISSIONS)
-                collect_file(f, os.path.join(COLLECTION_LOCATION, file))
+            if file_matches_target_extension(f):
+                logger.info("Target file found: %s", f)
+                original_permissions = get_permissions(f)
+                if original_permissions < OWNER_READ_PERMISSIONS:
+                    logger.info(
+                        "File does not have owner read permissions. Permissions will be temporarily modified. "
+                        "File: %s, current permissions: %d", d, original_permissions)
+                    modify_permissions(f, OWNER_READ_PERMISSIONS)
+                copyfile(f, os.path.join(COLLECTION_LOCATION, file))
+
+
+def file_matches_target_extension(f):
+    ext = os.path.splitext(f)[1]
+    return ext.lower() in EXTENSIONS if MATCH_IGNORE_CASE else ext in EXTENSIONS
 
 
 def collect_file(src, dest):
@@ -52,17 +79,18 @@ def collect_file(src, dest):
 def create_and_validate_collection_dir():
     if not os.path.exists(COLLECTION_LOCATION):
         os.makedirs(COLLECTION_LOCATION)
-        modify_file_permissions(COLLECTION_LOCATION, OWNER_READ_EXECUTE_PERMISSIONS)
+        modify_permissions(COLLECTION_LOCATION, OWNER_READ_EXECUTE_PERMISSIONS)
 
 
 def get_permissions(f):
     return int(oct(os.stat(f)[stat.ST_MODE])[-3:])
 
 
-def modify_file_permissions(f, perm):
+def modify_permissions(f, perm):
     os.chmod(f, perm)
 
 
 if __name__ == '__main__':
-    COLLECTION_LOCATION = '/Users/vince/Desktop/output"'
+    EXTENSIONS.append('.txt')
+    COLLECTION_LOCATION = '/Users/vince/Desktop/output'
     execute_automated_collection("/Users/vince/Desktop/test")
