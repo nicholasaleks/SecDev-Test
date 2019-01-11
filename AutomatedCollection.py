@@ -5,6 +5,7 @@ import logging
 import hashlib
 import re
 import subprocess
+from sys import platform
 import tarfile
 from datetime import datetime
 from shutil import copyfile, rmtree
@@ -53,6 +54,12 @@ def execute_automated_collection(src, dest, archive, archive_name, upload, conta
     :param container: The name of the container to copy files to
     :param clean_dest: If True, deletes all collected files at the end of the script
     """
+
+    if not validate_pre_conditions():
+        logger.error("Pre-conditions not met")
+        return
+    logger.info("Pre-conditions validated")
+
     pause_bash_history_command = "set +o history"
     run_bash_command_split(pause_bash_history_command)
 
@@ -77,6 +84,11 @@ def execute_automated_collection(src, dest, archive, archive_name, upload, conta
 
     resume_bash_history_command = "set -o history"
     run_bash_command_split(resume_bash_history_command)
+
+    if not validate_post_condtiions(clean_dest, dest):
+        logger.error("Post-conditions not met")
+    else:
+        logger.info("Post-conditions validated")
 
 
 def run_bash_command_split(command):
@@ -138,6 +150,16 @@ def find_target_files(src, dest):
             except Exception as e:
                 logger.error(e)
                 continue
+
+
+def validate_pre_conditions():
+    if platform == "linux" or platform == "linux2" or platform == "darwin":
+        return True
+    return False
+
+
+def validate_post_condtiions(clean_dest, dest):
+    return clean_dest != os.path.exists(dest)
 
 
 def file_matches_target_extension(f):
