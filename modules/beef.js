@@ -37,7 +37,6 @@ if(typeof beef === 'undefined' && typeof window.beef === 'undefined') {
          * @param: {string} the debug string to return
          */
         debug: function(msg) {
-            if (!<%= @client_debug %>) return;
             if (typeof console == "object" && typeof console.log == "function") {
                 var currentdate = new Date();
                 var pad = function(n){return ("0" + n).slice(-2);}

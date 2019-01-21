@@ -9,7 +9,7 @@
  *
  * Provides functionality to manipulate the DOM.
  */
-dom = {
+beef.dom = {
 	
 	/**
 	 * Generates a random ID for HTML elements
@@ -501,3 +501,4 @@ dom = {
 
 };
 
+beef.regCmp('beef.dom');
